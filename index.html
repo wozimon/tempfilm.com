@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KinoTemp</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #181818;
+            color: #eee;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #282828;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            color: #e50914;
+            font-family: 'Helvetica Neue', sans-serif;
+            text-shadow: 0 0 5px #e50914;
+        }
+
+        #search-container {
+            margin-top: 20px;
+        }
+
+        #search-input {
+            width: 50%;
+            padding: 10px;
+            border: none;
+            border-radius: 20px;
+            background-color: #333;
+            color: #eee;
+            font-size: 1em;
+            outline: none;
+        }
+
+        #search-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            background-color: #e50914;
+            color: #fff;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #search-button:hover {
+            background-color: #b2070d;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        #new-movies {
+          text-align: center;
+          margin-bottom: 40px;
+        }
+        
+        #new-movies h2 {
+          font-size: 1.8em;
+          margin-bottom: 20px;
+          color: #e50914;
+          font-family: 'Helvetica Neue', sans-serif;
+          text-shadow: 0 0 3px #e50914;
+        }
+
+        #new-movies-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 20px;
+          justify-content: center;
+        }
+        
+        .movie-card {
+            background-color: #282828;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            color: inherit;
+            text-decoration: none;
+            width: 215px; /* Ширина карточки */
+            margin: 0 auto;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
+        }
+
+        .movie-poster {
+            width: 215px; /* Ширина постера */
+            height: 322px; /* Высота постера */
+            object-fit: cover;
+        }
+
+        .movie-title {
+            padding: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #eee;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .movie-details {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 800px;
+            background-color: #282828;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            overflow: auto;
+            max-height: 80vh;
+        }
+
+        .movie-details-content {
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .movie-details-poster {
+            width: 30%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .movie-details-info {
+            flex: 1;
+        }
+
+        .movie-details-title {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .movie-details-description {
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .movie-details-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5em;
+            color: #eee;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .movie-details-close:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .download-button {
+            display: block;
+            width: fit-content;
+            padding: 10px 20px;
+            margin: 0 auto;
+            background-color: #e50914;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .download-button:hover {
+            background-color: #b2070d;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+        }
+        
+        .hidden {
+            display: none;
+        }
+
+        footer {
+            background-color: #282828;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.5);
+            margin-top: 20px;
+        }
+
+        footer p {
+            margin: 0;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>KinoTemp</h1>
+        <div id="search-container">
+            <input type="text" id="search-input" placeholder="Найти фильм...">
+            <button id="search-button">Поиск</button>
+        </div>
+    </header>
+
+    <main>
+      <section id="new-movies">
+          <h2>Новинки</h2>
+          <div id="new-movies-grid">
+              </div>
+      </section>
+  </main>
+    <div id="movie-details" class="movie-details">
+        <button class="movie-details-close" onclick="closeMovieDetails()">X</button>
+        <div class="movie-details-content">
+            <img src="" alt="Постер" class="movie-details-poster">
+            <div class="movie-details-info">
+                <h2 class="movie-details-title"></h2>
+                <p class="movie-details-description"></p>
+                <a href="#" class="download-button" download>Скачать</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="overlay" class="overlay"></div>
+
+    <footer>
+        <p>&copy; 2023 KinoTemp. Все права защищены.</p>
+    </footer>
+
+    <script>
+        const movies = [
+            {
+                title: "Начало",
+                poster: "https://m.media-amazon.com/images/M/MV5BNDhlYjg4N2QtYzVkZi00MmJmLWFlNDQtYWZkZDFjYTgxZjI4XkEyXkFqcGc@._V1_FMjpg_UX1067_.jpg", //Пример, замените на свои постеры
+                description: "Кобб — талантливый вор, лучший из лучших в опасном искусстве извлечения: он крадет ценные секреты из глубин подсознания во время сна, когда человеческий разум наиболее уязвим. Редкие способности Кобба сделали его ценным игроком в привычном к предательству мире промышленного шпионажа, но они же превратили его в извечного беглеца и лишили всего, что он когда-либо любил. И вот у Кобба появляется шанс исправить ошибки. Его последняя работа может вернуть все назад, но для этого ему нужно совершить невозможное — инициацию. Вместо идеальной кражи Кобб и его команда спецов должны будут провернуть обратное. Теперь их задача — не украсть идею, а внедрить ее. Если у них получится, это и станет идеальным преступлением. Но никакое планирование или мастерство не могут подготовить команду к встрече с опасным противником, который, кажется, предугадывает каждый их ход. Врагом, увидеть которого мог бы лишь Кобб.",
+                downloadLink: "#"
+            },
+            {
+                title: "Побег из Шоушенка",
+                poster: "https://m.media-amazon.com/images/M/MV5BNDVhMDBiMmYtYjFjMy00YjU1LTk5MzgtODU1ODVjYjVlYjA3XkEyXkFqcGc@._V1_FMjpg_UY3000_.jpg", //Пример, замените на свои постеры
+                description: "Бухгалтер Энди Дюфрейн обвинён в убийстве собственной жены и её любовника. Оказавшись в тюрьме под названием Шоушенк, он сталкивается с жестокостью и беззаконием, царящими по обе стороны решётки. Каждый, кто попадает в эти стены, становится их рабом до конца жизни. Но Энди, обладающий живым умом и доброй душой, находит подход как к заключённым, так и к охранникам, добиваясь особого к себе расположения.",
+                downloadLink: "#"
+            },
+            {
+                title: "Темный рыцарь",
+                poster: "https://m.media-amazon.com/images/M/MV5BM2VkYjc4NDUtZDZhNC00YTQ3LTk5YjEtMWMxYzQyNWVhMTRlXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg", //Пример, замените на свои постеры
+                description: "Бэтмен поднимает ставки в войне с криминалом. С помощью лейтенанта Джима Гордона и прокурора Харви Дента он намерен очистить улицы от преступности, отравляющей город. Сотрудничество оказывается эффективным, но скоро они обнаружат себя посреди хаоса, развязанного восходящим криминальным гением, известным испуганным горожанам под именем Джокер.",
+                downloadLink: "#"
+            },
+            {
+                title: "Остров проклятых",
+                poster: "https://m.media-amazon.com/images/M/MV5BM2ZhODk0ZjQtZjMzYi00MzcwLWIwZjctOTYwNGU2YmU3OWFiXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg", //Пример, замените на свои постеры
+                description: "Два американских судебных пристава отправляются на один из островов в штате Массачусетс, чтобы расследовать исчезновение пациентки клиники для умалишенных преступников. При проведении расследования им придется столкнуться с паутиной лжи, обрушившимся ураганом и смертельным бунтом обитателей клиники.",
+                downloadLink: "#"
+            },
+            {
+                title: "Матрица",
+                poster: "https://m.media-amazon.com/images/M/MV5BN2NmN2VhMTQtMDNiOS00NDlhLTliMjgtODE2ZTY0ODQyNDRhXkEyXkFqcGc@._V1_FMjpg_UY3156_.jpg", //Пример, замените на свои постеры
+                description: "Жизнь Томаса Андерсона разделена на две части: днём он — самый обычный офисный работник, получающий нагоняи от начальства, а ночью превращается в хакера по имени Нео, и нет места в сети, куда он бы не смог проникнуть. Но однажды всё меняется. Томас узнаёт ужасающую правду о реальности.",
+                downloadLink: "https://workupload.com/start/DPp8xJbpGwx"
+            },
+        ];
+
+        const newMoviesGrid = document.getElementById('new-movies-grid');
+        const movieDetails = document.getElementById('movie-details');
+        const overlay = document.getElementById('overlay');
+        const movieDetailsTitle = document.querySelector('.movie-details-title');
+        const movieDetailsPoster = document.querySelector('.movie-details-poster');
+        const movieDetailsDescription = document.querySelector('.movie-details-description');
+        const downloadButton = document.querySelector('.download-button');
+
+        function displayNewMovies(moviesToDisplay) {
+            newMoviesGrid.innerHTML = '';
+            for (let i = 0; i < 3 && i < moviesToDisplay.length; i++) {
+                const movie = moviesToDisplay[i];
+                const movieCard = document.createElement('a');
+                movieCard.classList.add('movie-card');
+                movieCard.href = "#";
+
+                const moviePoster = document.createElement('img');
+                moviePoster.src = movie.poster;
+                moviePoster.alt = movie.title;
+                moviePoster.classList.add('movie-poster');
+
+                const movieTitle = document.createElement('div');
+                movieTitle.textContent = movie.title;
+                movieTitle.classList.add('movie-title');
+
+                movieCard.appendChild(moviePoster);
+                movieCard.appendChild(movieTitle);
+
+                movieCard.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    showMovieDetails(movie);
+                });
+
+                newMoviesGrid.appendChild(movieCard);
+            }
+        }
+
+        function showMovieDetails(movie) {
+            movieDetailsTitle.textContent = movie.title;
+            movieDetailsPoster.src = movie.poster;
+            movieDetailsPoster.alt = movie.title;
+            movieDetailsDescription.textContent = movie.description;
+            downloadButton.href = movie.downloadLink;
+            movieDetails.style.display = 'block';
+            overlay.style.display = 'block';
+        }
+
+        function closeMovieDetails() {
+            movieDetails.style.display = 'none';
+            overlay.style.display = 'none';
+        }
+
+        document.getElementById('search-button').addEventListener('click', () => {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const filteredMovies = movies.filter(movie => movie.title.toLowerCase().includes(searchTerm));
+        
+            if (filteredMovies.length > 0) {
+                // Скрыть секцию новинок
+                document.getElementById('new-movies').style.display = 'none';
+                // Показать результаты поиска в модальном окне
+                showMovieDetails(filteredMovies[0]);
+            } else {
+                // Если ничего не найдено, можно вывести сообщение или оставить модальное окно пустым
+                alert('Ничего не найдено');
+            }
+        });
+
+        displayNewMovies(movies);
+    </script>
+</body>
+</html>
