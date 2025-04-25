@@ -91,7 +91,7 @@
             cursor: pointer;
             color: inherit;
             text-decoration: none;
-            width: 215px; /* Ширина карточки */
+            width: 215px;
             margin: 0 auto;
         }
 
@@ -101,8 +101,8 @@
         }
 
         .movie-poster {
-            width: 215px; /* Ширина постера */
-            height: 322px; /* Высота постера */
+            width: 215px;
+            height: 322px;
             object-fit: cover;
         }
 
@@ -348,12 +348,9 @@
             const filteredMovies = movies.filter(movie => movie.title.toLowerCase().includes(searchTerm));
         
             if (filteredMovies.length > 0) {
-                // Скрыть секцию новинок
                 document.getElementById('new-movies').style.display = 'none';
-                // Показать результаты поиска в модальном окне
                 showMovieDetails(filteredMovies[0]);
             } else {
-                // Если ничего не найдено, можно вывести сообщение или оставить модальное окно пустым
                 alert('Ничего не найдено');
             }
         });
